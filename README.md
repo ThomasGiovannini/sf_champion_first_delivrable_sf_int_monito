@@ -42,19 +42,39 @@ Run `setup/02_grant_access.sql` after replacing `<YOUR_ROLE>` with the role that
 -- Execute all statements in setup/02_grant_access.sql
 ```
 
-### 3. Deploy the Streamlit app
-
-**Option A — Snowflake Workspace:**
+### 3. Preview the app (Workspace)
 
 1. Copy the contents of `streamlit/` into a new Workspace folder
 2. Set the app role to your granted role in **App Settings**
-3. Click **Run**
+3. Click **Run** to preview the app in development mode
 
-**Option B — Snow CLI:**
+### 4. Deploy as a Streamlit app
+
+Once you've validated the app in preview, deploy it as a permanent Streamlit app:
+
+**Option A — Via Snowsight UI:**
+
+1. In your Workspace, click **Deploy** (top-right)
+2. Choose the target database and schema (e.g. `MONITORING_DB.AI_OBSERVABILITY`)
+3. Set the app title (e.g. `Snowflake Intelligence Monitoring`)
+4. Assign the query warehouse and role
+5. Click **Deploy**
+
+**Option B — Via Snow CLI:**
 
 ```bash
 cd streamlit
-snow streamlit deploy
+snow streamlit deploy --database MONITORING_DB --schema AI_OBSERVABILITY
+```
+
+**Option C — Via SQL:**
+
+```sql
+CREATE STREAMLIT MONITORING_DB.AI_OBSERVABILITY.SNOWFLAKE_INTELLIGENCE_MONITORING
+    FROM 'snow://workspace/<YOUR_WORKSPACE>/versions/live/streamlit'
+    MAIN_FILE = 'streamlit_app.py'
+    QUERY_WAREHOUSE = 'SANDBOX_WH'
+    TITLE = 'Snowflake Intelligence Monitoring';
 ```
 
 ## App Features
@@ -97,5 +117,3 @@ The views are built on top of these Snowflake system tables:
 ## Notes
 
 - The `SNOWFLAKE.LOCAL.AI_OBSERVABILITY_EVENTS` table requires `IMPORTED PRIVILEGES` on the `SNOWFLAKE` database.
-- Usage history views in `ACCOUNT_USAGE` may have up to 45 minutes of latency.
-- The spend calculation uses: `CREDITS_INPUT + CREDITS_OUTPUT + CREDITS_READ_INPUT + CREDITS_WRITE_INPUT * 3.7` to estimate USD cost.
